@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Netlify</title>
+    <title>Site Deployer</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Deploy Your Website</h1>
-    <form id="upload-form">
-        <input type="file" id="file-input" accept=".zip" required>
-        <input type="text" id="site-name" placeholder="Enter site name (optional)">
-        <button type="submit">Deploy</button>
+    <h1>🚀 Deploy Your Site</h1>
+    <form id="uploadForm">
+        <input type="text" id="siteName" placeholder="Enter Site Name (optional)" />
+        <input type="file" id="fileInput" accept=".zip" required />
+        <button type="submit">Upload & Deploy</button>
     </form>
     <p id="status"></p>
+
     <script src="script.js"></script>
 </body>
 </html>
