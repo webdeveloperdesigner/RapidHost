@@ -6,47 +6,38 @@ const unzipper = require("unzipper");
 const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
-// ✅ Use TEMP storage on Vercel/Render
 const upload = multer({ dest: "/tmp/uploads/" });
 
 app.use(cors());
-app.use(express.static("public"));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.static("sites"));
 
 app.post("/upload", upload.single("file"), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ error: "❌ No file uploaded!" });
-    }
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
+    let zipFileName = path.basename(req.file.originalname, path.extname(req.file.originalname));
     let siteName = req.body.siteName || "site-" + Math.random().toString(36).substring(7);
-    let zipFileName = path.parse(req.file.originalname).name;
-    let sitePath = path.join("/tmp", "sites", siteName);
-    let originalFolder = path.join(sitePath, "original", zipFileName);
+    let sitePath = path.join(__dirname, "sites", siteName, "original", zipFileName);
 
     try {
-        await fs.ensureDir(originalFolder);
+        await fs.ensureDir(sitePath);
+        await fs.createReadStream(req.file.path).pipe(unzipper.Extract({ path: sitePath }));
 
-        // ✅ Extract ZIP file to /tmp
-        await fs.createReadStream(req.file.path)
-            .pipe(unzipper.Extract({ path: originalFolder }))
-            .promise();
-
-        // ✅ Check if index.html is directly inside or in a subfolder
-        const extractedFiles = await fs.readdir(originalFolder);
-        let indexPath;
-        if (extractedFiles.includes("index.html")) {
-            indexPath = `/${siteName}/original/${zipFileName}/index.html`;
-        } else {
-            indexPath = `/${siteName}/original/${zipFileName}/${zipFileName}/index.html`;
-        }
+        let link1 = `/${siteName}/original/${zipFileName}/index.html`;
+        let link2 = `/${siteName}/original/${zipFileName}/${zipFileName}/index.html`;
 
         return res.json({
-            message: `<a href='${indexPath}' target='_blank'>${indexPath}</a>`,
+            message: "✔️ Deployment Successful!",
+            links: {
+                singleFolder: link1,
+                nestedFolder: link2
+            }
         });
     } catch (err) {
-        return res.status(500).json({ error: "❌ Deployment failed!", details: err.message });
+        return res.status(500).json({ error: "❌ Deployment failed" });
     }
 });
 
