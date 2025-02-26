@@ -8,16 +8,20 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Multer setup: Store uploaded files in /tmp
-const upload = multer({ dest: "/tmp" });
+app.use(cors());
+app.use(express.json());
+app.use(express.static("public"));
 
-app.use(cors({ origin: "*" }));
-app.use(express.static("public")); // Serve files from 'public' folder
+// Multer storage setup (store uploaded files in "uploads/")
+const upload = multer({ dest: "uploads/" });
 
-// Upload & Extract ZIP Files
 app.post("/upload", upload.single("file"), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+    }
+
     let siteName = req.body.siteName || "site-" + Math.random().toString(36).substring(7);
-    let sitePath = path.join("/tmp", siteName);
+    let sitePath = path.join(__dirname, "sites", siteName);
     let publicPath = path.join(__dirname, "public", siteName);
 
     try {
@@ -25,10 +29,16 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         await fs.createReadStream(req.file.path).pipe(unzipper.Extract({ path: sitePath }));
         await fs.move(sitePath, publicPath, { overwrite: true });
 
-        res.json({ message: `Deployed at: https://rapidhost-jyjy.onrender.com/${siteName}/index.html` });
+        return res.json({ message: `/<a href='/${siteName}/index.html' target='_blank'>${siteName}/index.html</a>` });
+
     } catch (err) {
-        res.status(500).json({ error: "Deployment failed", details: err.message });
+        return res.status(500).json({ error: "Deployment failed", details: err.message });
     }
+});
+
+// Handle undefined routes
+app.use((req, res) => {
+    res.status(404).json({ error: "Endpoint not found" });
 });
 
 app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));

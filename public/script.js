@@ -1,6 +1,6 @@
 document.getElementById("uploadForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    
+
     const fileInput = document.getElementById("fileInput").files[0];
     const siteName = document.getElementById("siteName").value;
     if (!fileInput) return alert("Please select a ZIP file.");
@@ -12,17 +12,18 @@ document.getElementById("uploadForm").addEventListener("submit", async (e) => {
     document.getElementById("status").textContent = "Uploading...";
 
     try {
-        let res = await fetch("https://rapidhost-jyjy.onrender.com/upload", {
+        let res = await fetch("/upload", {
             method: "POST",
             body: formData
         });
-        let data = await res.json();
-        
-        if (res.ok) {
-            document.getElementById("status").innerHTML = `✅ Deployed: <a href="${data.message}" target="_blank">${data.message}</a>`;
-        } else {
-            throw new Error(data.error);
+
+        if (!res.ok) {
+            let errorText = await res.text(); // Debugging
+            throw new Error(`Server error: ${res.status} - ${errorText}`);
         }
+
+        let data = await res.json();
+        document.getElementById("status").innerHTML = `✅ Deployed: <a href="${data.message}" target="_blank">${data.message}</a>`;
     } catch (err) {
         document.getElementById("status").textContent = "❌ Upload failed: " + err.message;
     }
