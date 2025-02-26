@@ -1,22 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deploy Website</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
-        input, button { margin: 10px; padding: 10px; }
-        #status { margin-top: 20px; font-weight: bold; }
-    </style>
-</head>
+<html>
+<head><title>Upload Page</title></head>
+<link rel="stylesheet" href="style.css">
 <body>
-    <h1>Upload & Deploy Your Website</h1>
-    <input type="text" id="siteName" placeholder="Enter Site Name (Optional)">
-    <input type="file" id="fileUpload">
-    <button onclick="uploadFile()">Upload & Deploy</button>
-    <div id="status"></div>
-
-    <script src="script.js"></script>
+    <h1>Welcome to File Uploader</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
 </body>
+<script src="./script.js"></script>
 </html>

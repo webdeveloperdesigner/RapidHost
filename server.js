@@ -6,7 +6,7 @@ const unzipper = require("unzipper");
 const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 5000; // ✅ Use process.env.PORT
+const PORT = process.env.PORT || 5000;
 
 const upload = multer({ dest: "/tmp/uploads/" });
 
@@ -15,6 +15,12 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.static("sites"));
 
+// ✅ Serve a Default Index Page
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html")); // Make sure "public/index.html" exists
+});
+
+// ✅ Upload API
 app.post("/upload", upload.single("file"), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
@@ -41,4 +47,5 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     }
 });
 
+// ✅ Start Server
 app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Server running on port ${PORT}`));
