@@ -23,19 +23,22 @@ module.exports = (req, res) => {
 
             const zipFileName = path.basename(req.file.originalname, path.extname(req.file.originalname));
             const siteName = req.body.siteName || 'site-' + Math.random().toString(36).substring(7);
-            const sitePath = path.join('public', 'sites', siteName, 'original', zipFileName);
+
+            // Temporary directory to store the extracted files
+            const tempDir = path.join('/tmp', 'sites', siteName, 'original', zipFileName);
 
             try {
-                // Create the site directory inside the public folder
-                await fs.promises.mkdir(sitePath, { recursive: true });
+                // Create the temp directory to extract files
+                await fs.promises.mkdir(tempDir, { recursive: true });
 
-                // Extract the uploaded zip file to the site directory inside public
-                const extractStream = fs.createReadStream(req.file.path).pipe(unzipper.Extract({ path: sitePath }));
+                // Extract the uploaded zip file to the temp directory
+                const extractStream = fs.createReadStream(req.file.path).pipe(unzipper.Extract({ path: tempDir }));
 
                 extractStream.on('close', () => {
+                    // Generate the URLs for the extracted files
                     const baseUrl = `${req.protocol}://${req.headers.host}`;
-                    const link1 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/index.html`;
-                    const link2 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/${zipFileName}/index.html`;
+                    const link1 = `${baseUrl}/tmp/sites/${siteName}/original/${zipFileName}/index.html`;
+                    const link2 = `${baseUrl}/tmp/sites/${siteName}/original/${zipFileName}/${zipFileName}/index.html`;
 
                     let responseHtml = `
                     <html>
