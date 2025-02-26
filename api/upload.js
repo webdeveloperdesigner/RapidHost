@@ -35,8 +35,10 @@ module.exports = (req, res) => {
 
                 extractStream.on('close', () => {
                     const baseUrl = `${req.protocol}://${req.headers.host}`;
+
                     const link1 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/index.html`;
                     const link2 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/${zipFileName}/index.html`;
+
 
                     let responseHtml = `
                     <html>
