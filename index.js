@@ -6,7 +6,6 @@ const unzipper = require("unzipper");
 const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 const upload = multer({ dest: "uploads/" });
 
 app.use(cors());
@@ -19,10 +18,10 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     try {
         await fs.ensureDir(sitePath);
         await fs.createReadStream(req.file.path).pipe(unzipper.Extract({ path: sitePath }));
-        res.json({ message: "Deployed at: https://your-backend.onrender.com/" + siteName + "/index.html" });
+        res.json({ message: `Deployed at: https://your-backend.vercel.app/${siteName}/index.html` });
     } catch (err) {
         res.status(500).json({ error: "Deployment failed" });
     }
 });
 
-app.listen(PORT, () => console.log("íº€ Server running at http://localhost:5000"));
+module.exports = app;  // âœ… Required for Vercel to detect as an API
