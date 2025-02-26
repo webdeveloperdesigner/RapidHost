@@ -23,7 +23,8 @@ document.getElementById("uploadForm").addEventListener("submit", async (e) => {
         }
 
         let data = await res.json();
-        document.getElementById("status").innerHTML = `✅ Deployed: <a href="${data.message}" target="_blank">${data.message}</a>`;
+        document.getElementById("status").innerHTML = data.message;
+
     } catch (err) {
         document.getElementById("status").textContent = "❌ Upload failed: " + err.message;
     }
