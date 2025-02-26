@@ -13,14 +13,13 @@ const upload = multer({ dest: "/tmp/uploads/" });
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-app.use(express.static("sites"));
+app.use(express.static("public"));
+app.use("/sites", express.static(path.join(__dirname, "sites")));
 
-// ✅ Serve a Default Index Page
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html")); // Make sure "public/index.html" exists
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// ✅ Upload API
 app.post("/upload", upload.single("file"), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
@@ -32,20 +31,44 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         await fs.ensureDir(sitePath);
         await fs.createReadStream(req.file.path).pipe(unzipper.Extract({ path: sitePath }));
 
-        let link1 = `/${siteName}/original/${zipFileName}/index.html`;
-        let link2 = `/${siteName}/original/${zipFileName}/${zipFileName}/index.html`;
+        let baseUrl = `${req.protocol}://${req.get("host")}`;
+        let link1 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/index.html`;
+        let link2 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/${zipFileName}/index.html`;
 
-        return res.json({
-            message: "✔️ Deployment Successful!",
-            links: {
-                singleFolder: link1,
-                nestedFolder: link2
-            }
-        });
+        let responseHtml = `
+            <html>
+            <head>
+                <title>Upload Successful</title>
+                <style>
+                    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+                    a { display: block; margin: 10px; padding: 10px; background: #28a745; color: white; text-decoration: none; border-radius: 5px; }
+                    a:hover { background: #218838; }
+                    input { width: 100%; padding: 10px; margin-top: 10px; text-align: center; }
+                </style>
+            </head>
+            <body>
+                <h2>✔️ Deployment Successful!</h2>
+                <p>Click the links below to view your deployed pages:</p>
+                <a href="${link1}" target="_blank" onclick="copyToClipboard('${link1}')">${link1}</a>
+                <a href="${link2}" target="_blank" onclick="copyToClipboard('${link2}')">${link2}</a>
+                <p>Click a link to open or copy it below:</p>
+                <input type="text" id="copyField" readonly value="" onclick="this.select()">
+                <script>
+                    function copyToClipboard(text) {
+                        document.getElementById("copyField").value = text;
+                        document.getElementById("copyField").select();
+                        document.execCommand("copy");
+                        alert("Copied to clipboard: " + text);
+                    }
+                </script>
+            </body>
+            </html>
+        `;
+
+        res.send(responseHtml);
     } catch (err) {
-        return res.status(500).json({ error: "❌ Deployment failed" });
+        return res.status(500).send("<h3>❌ Deployment failed</h3>");
     }
 });
 
-// ✅ Start Server
 app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Server running on port ${PORT}`));
