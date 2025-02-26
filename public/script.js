@@ -7,7 +7,7 @@ document.getElementById("upload-form").onsubmit = async (e) => {
     formData.append("file", file);
     formData.append("siteName", siteName);
 
-    let response = await fetch("https://rapid-host.vercel.app//upload", { method: "POST", body: formData });
+    let response = await fetch("https://rapidhost-jyjy.onrender.com/upload", { method: "POST", body: formData });
     let result = await response.json();
     document.getElementById("status").innerText = result.message;
 };

@@ -22,7 +22,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     try {
         await fs.ensureDir(sitePath);
         await fs.createReadStream(req.file.path).pipe(unzipper.Extract({ path: sitePath }));
-        res.json({ message: `Deployed at: https://your-backend.onrender.com/${siteName}/index.html` });
+        res.json({ message: `Deployed at: https://rapidhost-jyjy.onrender.com/${siteName}/index.html` });
     } catch (err) {
         res.status(500).json({ error: "Deployment failed" });
     }
