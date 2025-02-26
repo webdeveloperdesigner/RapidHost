@@ -2,17 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const unzipper = require('unzipper');
 const multer = require('multer');
-const cors = require('cors');
 
 const upload = multer({ dest: '/tmp/uploads/' });
 
 module.exports = (req, res) => {
-    // Enable CORS if necessary
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // Handling OPTIONS request
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
@@ -26,19 +23,19 @@ module.exports = (req, res) => {
 
             const zipFileName = path.basename(req.file.originalname, path.extname(req.file.originalname));
             const siteName = req.body.siteName || 'site-' + Math.random().toString(36).substring(7);
-            const sitePath = path.join('/tmp', 'sites', siteName, 'original', zipFileName);
+            const sitePath = path.join('public', 'sites', siteName, 'original', zipFileName);
 
             try {
-                // Extract the uploaded zip file
+                // Create the site directory inside the public folder
                 await fs.promises.mkdir(sitePath, { recursive: true });
+
+                // Extract the uploaded zip file to the site directory inside public
                 const extractStream = fs.createReadStream(req.file.path).pipe(unzipper.Extract({ path: sitePath }));
 
                 extractStream.on('close', () => {
                     const baseUrl = `${req.protocol}://${req.headers.host}`;
-
                     const link1 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/index.html`;
                     const link2 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/${zipFileName}/index.html`;
-
 
                     let responseHtml = `
                     <html>
@@ -69,7 +66,6 @@ module.exports = (req, res) => {
                         </body>
                     </html>
                     `;
-
                     res.send(responseHtml);
                 });
 
