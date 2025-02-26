@@ -35,6 +35,8 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         let link1 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/index.html`;
         let link2 = `${baseUrl}/sites/${siteName}/original/${zipFileName}/${zipFileName}/index.html`;
 
+        // Send HTML response with content-type set to text/html
+        res.setHeader('Content-Type', 'text/html');
         let responseHtml = `
             <html>
             <head>
@@ -64,11 +66,11 @@ app.post("/upload", upload.single("file"), async (req, res) => {
             </body>
             </html>
         `;
-
         res.send(responseHtml);
     } catch (err) {
         return res.status(500).send("<h3>❌ Deployment failed</h3>");
     }
 });
+
 
 app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Server running on port ${PORT}`));
