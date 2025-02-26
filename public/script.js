@@ -1,31 +1,29 @@
-document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+function uploadFile() {
+    let fileInput = document.getElementById("fileUpload");
+    let siteNameInput = document.getElementById("siteName").value;
+    let statusDiv = document.getElementById("status");
 
-    const fileInput = document.getElementById("fileInput").files[0];
-    const siteName = document.getElementById("siteName").value;
-    if (!fileInput) return alert("Please select a ZIP file.");
+    if (!fileInput.files.length) {
+        statusDiv.innerHTML = "<span style='color:red'>❌ No file selected</span>";
+        return;
+    }
 
     let formData = new FormData();
-    formData.append("file", fileInput);
-    formData.append("siteName", siteName);
+    formData.append("file", fileInput.files[0]);
+    if (siteNameInput) formData.append("siteName", siteNameInput);
 
-    document.getElementById("status").textContent = "Uploading...";
+    statusDiv.innerHTML = "⏳ Uploading...";
 
-    try {
-        let res = await fetch("/upload", {
-            method: "POST",
-            body: formData
-        });
-
-        if (!res.ok) {
-            let errorText = await res.text(); // Debugging
-            throw new Error(`Server error: ${res.status} - ${errorText}`);
+    fetch("/upload", { method: "POST", body: formData })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            statusDiv.innerHTML = `<span style='color:red'>❌ ${data.error}</span>`;
+        } else {
+            statusDiv.innerHTML = `✅ Deployed at: ${data.message}`;
         }
-
-        let data = await res.json();
-        document.getElementById("status").innerHTML = data.message;
-
-    } catch (err) {
-        document.getElementById("status").textContent = "❌ Upload failed: " + err.message;
-    }
-});
+    })
+    .catch(err => {
+        statusDiv.innerHTML = "<span style='color:red'>❌ Upload failed</span>";
+    });
+}

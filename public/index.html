@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Deployer</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Deploy Website</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        input, button { margin: 10px; padding: 10px; }
+        #status { margin-top: 20px; font-weight: bold; }
+    </style>
 </head>
 <body>
-    <h1>🚀 Deploy Your Site</h1>
-    <form id="uploadForm">
-        <input type="text" id="siteName" placeholder="Enter Site Name (optional)" />
-        <input type="file" id="fileInput" accept=".zip" required />
-        <button type="submit">Upload & Deploy</button>
-    </form>
-    <p id="status"></p>
+    <h1>Upload & Deploy Your Website</h1>
+    <input type="text" id="siteName" placeholder="Enter Site Name (Optional)">
+    <input type="file" id="fileUpload">
+    <button onclick="uploadFile()">Upload & Deploy</button>
+    <div id="status"></div>
 
     <script src="script.js"></script>
 </body>
