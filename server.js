@@ -6,7 +6,7 @@ const unzipper = require("unzipper");
 const cors = require("cors");
 
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5000; // ✅ Use process.env.PORT
 
 const upload = multer({ dest: "/tmp/uploads/" });
 
@@ -41,4 +41,4 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     }
 });
 
-app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+app.listen(PORT, "0.0.0.0", () => console.log(`🚀 Server running on port ${PORT}`));
